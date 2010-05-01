@@ -27,8 +27,7 @@ module Sonia
     end
 
     def configure(options)
-      @@config = Settings.read(File.expand_path(options.config))
-      Settings.resolve!
+      @@config = YAML.load_file(File.expand_path(options.config))
       @@config
     end
 
