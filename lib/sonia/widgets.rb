@@ -9,5 +9,6 @@ module Sonia
     autoload :Icinga,   "sonia/widgets/icinga"
     autoload :Campfire, "sonia/widgets/campfire"
     autoload :Github,   "sonia/widgets/github"
+    autoload :LineGraph,   "sonia/widgets/line_graph"
   end
 end
