@@ -31,3 +31,10 @@ Github:
   :username: your_username
   :token: your_token
   :nitems: 10
+
+RSS:
+  :name: RSS
+  :title: Feeds
+  :poll_time: 20
+  :url: "http://www.engadget.com/rss.xml"
+  :xpath: "//item//title"

@@ -10,5 +10,6 @@ module Sonia
     autoload :Campfire, "sonia/widgets/campfire"
     autoload :Github,   "sonia/widgets/github"
     autoload :LineGraph,   "sonia/widgets/line_graph"
+    autoload :RSS,   "sonia/widgets/rss"
   end
 end
