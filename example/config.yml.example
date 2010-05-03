@@ -38,3 +38,4 @@ RSS:
   :poll_time: 20
   :url: "http://www.engadget.com/rss.xml"
   :xpath: "//item//title"
+  :nitems: 5

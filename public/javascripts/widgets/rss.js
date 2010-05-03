@@ -20,6 +20,7 @@ var RSS = Class.create(Widget, {
     this.messages.each(function(message){
         var i = new Element("p").update(message);
         cont.appendChild(i);
+        cont.appendChild(new Element('hr' ));
       });
       this.container.appendChild(cont);
   },

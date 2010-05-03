@@ -34,7 +34,7 @@ module Sonia
       def parse_response(response)
         items = Nokogiri::XML.parse(response).xpath(config[:xpath]).map{|t| t.content}
         log_info("RSS items: #{items}")
-        push( {:items => items})
+        push( {:items => items[0...config[:nitems]]})
       rescue => e
         log_backtrace(e)
       end
