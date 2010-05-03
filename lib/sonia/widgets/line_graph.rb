@@ -3,8 +3,6 @@ require 'em-http'
 module Sonia
   module Widgets
     class LineGraph < Sonia::Widget
-      URL = "http://localhost:6677/queue"
-
       def initialize(config)
         super(config)
         EventMachine::add_periodic_timer(2) { fetch_data }
@@ -47,7 +45,7 @@ module Sonia
       end
 
       def service_url
-        URL
+        config[:url]
       end
     end
   end

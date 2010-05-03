@@ -18,24 +18,25 @@ var LineGraph = Class.create(Widget, {
     this.container.appendChild(this.buildGraphArea());
 
     var values = [];
-    var xs = [];
-
-    for (i=1; i<=20; i++){
-      values.push(0);
-      xs.push(i);
+    if(this.messages.size() == 20){
+      this.messages = [];
     }
+
     var i=0;
     this.messages.each(function(message) {
-        values[++i] = message.value;
+        values.push([++i, message.value]);
     }.bind(this));
 
-    var paper = Raphael("graph");
-    //paper.g.piechart(120, 150, 100, values);
-
-    var opts = {nostroke: true, axis: "0 0 1 1", symbol: "x"}
-            //axminx: .8, axmaxx: 1.2, axminy: .8, axmaxy: 1.2};
-
-    paper.g.linechart(30,80,200,250, xs, values, opts);
+    new Proto.Chart($('graph'),
+    [
+     {data: values, label: "Data 1"}
+    ],
+    {
+        //since line chart is the default charting view
+        //we do not need to pass any specific options for it.
+        xaxis: {min: 0, max: 20, tickSize: 1},
+        yaxis: {min: 0, max: 100, tickSize: 10},
+    });
 
   },
   buildWidgetIcon: function() {
