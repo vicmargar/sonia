@@ -35,5 +35,6 @@ module Sonia
     get "/images/:widget/*.*" do
       send_file File.join(Sonia.root, "widgets", params[:widget], "images", params[:splat].join('.'))
     end
+
   end
 end

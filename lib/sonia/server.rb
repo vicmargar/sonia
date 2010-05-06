@@ -5,13 +5,14 @@ require "yajl"
 require "yaml"
 require "thin"
 
-# monkey patch pending fix
-module EventMachine
-  module WebSocket
-    class Connection < EventMachine::Connection
-      def send(data)
-        debug [:send, data]
-        send_data("\x00#{data.force_encoding(Encoding::ASCII_8BIT)}\xff")
+if RUBY_VERSION >= "1.9.0"
+  module EventMachine
+    module WebSocket
+      class Connection < EventMachine::Connection
+        def send(data)
+          debug [:send, data]
+          send_data("\x00#{data.force_encoding(Encoding::ASCII_8BIT)}\xff")
+        end
       end
     end
   end
@@ -31,6 +32,9 @@ module Sonia
 
     WEBSERVER_HOST = "localhost"
     WEBSERVER_PORT = 3000
+
+    COMMANDSERVER_HOST = "localhost"
+    COMMANDSERVER_PORT = 3001
 
     # Starts the server
     #
@@ -66,9 +70,12 @@ module Sonia
     # Starts main [EventMachine] loop
     def serve
       EventMachine.run {
+        Sonia.initialize_command_queue
         initialize_widgets
         start_web_socket_server
         start_web_server
+        start_command_server
+        EventMachine::add_periodic_timer( 1 ) { process_command_queue }
         @start_block.call
       }
     end
@@ -94,7 +101,12 @@ module Sonia
     # Starts WebSocket server
     def start_web_socket_server
       EventMachine::WebSocket.start(websocket_options) do |ws|
+        @command_channel = EM::Channel.new
+        @command_channel.subscribe { |msg| ws.send msg }
         ws.onopen {
+
+          log.info("Opened connection from: #{ws}")
+
           @widgets.map { |widget| widget.subscribe!(ws) }
 
           setup_message = { :setup => @widgets.map { |widget| widget.setup } }
@@ -110,23 +122,36 @@ module Sonia
           }
         }
 
-        #ws.onmessage { |msg|
-        #@widgets.each do |widget|
-        #widget.push "<#{@sids}>: #{msg}"
-        #end
-        #}
+        ws.onmessage{ |msg|
+          log.info("Received message: #{msg}")
+        }
 
         ws.onclose {
           @widgets.each { |widget| widget.unsubscribe! }
         }
       end
-
       log.info("Server") { "WebSocket Server running at #{websocket_options[:host]}:#{websocket_options[:port]}" }
+    end
+
+    def process_command_queue
+      Sonia.command_queue.pop{ |command|
+        log.info("Popped command: #{command.inspect}")
+        @command_channel.push(build_command(command))
+      }
+    end
+
+    def build_command(command)
+      Yajl::Encoder.encode({:command => command})
     end
 
     # Starts Thin WebServer
     def start_web_server
       Thin::Server.start(WEBSERVER_HOST, WEBSERVER_PORT, ::Sonia::WebServer)
+    end
+
+    # Starts Thin Command Server
+    def start_command_server
+      Thin::Server.start(COMMANDSERVER_HOST, COMMANDSERVER_PORT, ::Sonia::CommandServer)
     end
 
     # Returns WebServer URL

@@ -9,6 +9,7 @@ module Sonia
   autoload :Widget,    'sonia/widget'
   autoload :Widgets,   'sonia/widgets'
   autoload :WebServer, 'sonia/web_server'
+  autoload :CommandServer, 'sonia/command_server'
   autoload :Config,    'sonia/config'
   autoload :Helpers,   'sonia/helpers'
 
@@ -24,5 +25,14 @@ module Sonia
   # @return [String] expanded path to the root directory
   def self.root
     @@root ||= File.expand_path(File.join(File.dirname(__FILE__), '..'))
+  end
+
+  # Starts queue for commands
+  def self.initialize_command_queue
+    @@command_queue = EM::Queue.new
+  end
+
+  def self.command_queue
+    @@command_queue
   end
 end

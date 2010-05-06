@@ -5,7 +5,9 @@ var Dispatcher = Class.create({
   dispatch: function(data) {
     var json = JSON.parse(data);
 
-    if(json.message) {
+    if(json.command) {
+      console.log("Command received:", json.command);
+    } else if(json.message) {
       if(json.message.widget && json.message.widget_id && json.message.payload) {
         try {
           this.sonia.widgets[json.message.widget_id].onReceive(json.message.payload);
